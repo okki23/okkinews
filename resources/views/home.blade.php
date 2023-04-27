@@ -53,7 +53,7 @@
                     <div class="card mb-4">
                         @foreach ($datalist as $key=>$val)  
                             @if($val->is_headline == 1)
-                            <a href="{{ url('details/'.$val->id)}}"><img class="card-img-top" src="{{ asset('uploads/'.$val->image) }}" alt="..." /></a>
+                            <a href="{{ url('details/'.$val->id)}}"><img class="card-img-top" src="{{ asset('uploads/'.$val->foto) }}" alt="..." /></a>
                             <div class="card-body">
                                 <div class="small text-muted">Posted on {{ $val->pubdate }} by {{ $val->authors }}</div>
                                 <h2 class="card-title">{{ $val->title }}</h2>
@@ -70,7 +70,7 @@
                             @foreach ($datalist as $kex=>$vax) 
                             @if($vax->id % 2 != 0)
                                 <div class="card mb-4">
-                                    <a href="{{ url('details/'.$vax->id)}}"><img class="card-img-top" src="{{ asset('uploads/'.$vax->image) }}" alt="..." /></a>
+                                    <a href="{{ url('details/'.$vax->id)}}"><img class="card-img-top" src="{{ asset('uploads/'.$vax->foto) }}" alt="..." /></a>
                                     <div class="card-body">
                                         <div class="small text-muted"> {{ $vax->pubdate }}</div>
                                         <h2 class="card-title h4">{{ $vax->title }}</h2>
@@ -87,7 +87,7 @@
                             @foreach ($datalist as $kex=>$vax) 
                             @if($vax->id % 2 == 0)
                                 <div class="card mb-4">
-                                    <a href="{{ url('details/'.$vax->id)}}"><img class="card-img-top" src="{{ asset('uploads/'.$vax->image) }}" alt="..." /></a>
+                                    <a href="{{ url('details/'.$vax->id)}}"><img class="card-img-top" src="{{ asset('uploads/'.$vax->foto) }}" alt="..." /></a>
                                     <div class="card-body">
                                         <div class="small text-muted"> {{ $vax->pubdate }}</div>
                                         <h2 class="card-title h4">{{ $vax->title }}</h2>
@@ -102,9 +102,9 @@
                         
                     </div>
                     <!-- Pagination-->
-                    sdsd
+             
                     {!! $datalist->withQueryString()->links('pagination::bootstrap-5') !!}
-                    {!! $datalist->withQueryString()->links() !!}     
+                       
                     <br>
                     {{-- <nav aria-label="Pagination">
                         <hr class="my-0" />

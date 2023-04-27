@@ -19,7 +19,7 @@ class PostController extends Controller
     }
 
     public function savepost(Request $request){
-        // dd($request->all());
+        // dd($request->file('foto')->getClientOriginalName());
         if($request->id == NULL || $request->id == ''){
             
             $destinationPath = 'uploads';
@@ -60,7 +60,7 @@ class PostController extends Controller
                 ]);
                
             }else{
-                \DB::table('instruktur')->where('id',$request->id)->update([
+                \DB::table('post')->where('id',$request->id)->update([
                     'title' => $request->title,
                     'content' => $request->content,
                     'authors' => Auth::user()->name,

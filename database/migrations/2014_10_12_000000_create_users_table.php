@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Hash;
 
 return new class extends Migration
 {
@@ -24,8 +25,8 @@ return new class extends Migration
         DB::table('users')->insert([
             'name' => 'Super Admin', 
             'email' => 'admin@superuser.id',
-            'password' => bcrypt('q1w2e'), 
-            'remember_token' => bcrypt('q1w2e3')
+            'password' => '$2y$10$47zdAbaROe8JwSStCkIlfO15UXwEanTy8ZXsWQMdIbU0RcJ7yzU4y', 
+            'remember_token' => '$2y$10$47zdAbaROe8JwSStCkIlfO15UXwEanTy8ZXsWQMdIbU0RcJ7yzU4y'
         ]
     );
     }
