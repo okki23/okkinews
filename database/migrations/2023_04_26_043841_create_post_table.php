@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('authors')->length(255);
             $table->date('pubdate');
             $table->string('is_headline');
+            $table->integer('user_id');
             $table->string('foto')->length(255)->nullable();
             $table->string('content')->length(255)->nullable(); 
             $table->timestamps();

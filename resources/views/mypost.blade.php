@@ -32,7 +32,6 @@
                         @if(Auth::user())
                         <li class="nav-item"><a class="nav-link active" aria-current="page" href="#">{{ Auth::user()->name }}</a></li>
                         <li class="nav-item"><a class="nav-link" aria-current="page" href="{{ url('mypost') }}">My Post</a></li>
-                        
                         <li class="nav-item"><a class="nav-link" aria-current="page" href="{{ url('keluar') }}"> Logout </a></li>
                         @else  
 

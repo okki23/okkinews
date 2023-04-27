@@ -6,6 +6,7 @@ use App\Models\PostModel;
 use Illuminate\Http\Request;
 use DataTables; 
 use Illuminate\Support\Facades\Auth;
+use App\Models\CommentModel;
 
 class PostController extends Controller
 {
@@ -19,7 +20,8 @@ class PostController extends Controller
     }
 
     public function savepost(Request $request){
-        // dd($request->file('foto')->getClientOriginalName());
+       
+        $fotonya = $request->file('foto')->getClientOriginalName();
         if($request->id == NULL || $request->id == ''){
             
             $destinationPath = 'uploads';
@@ -31,6 +33,7 @@ class PostController extends Controller
                 $post->content = $request->content; 
                 $post->authors = Auth::user()->name;
                 $post->pubdate = date('Y-m-d');
+                $post->user_id = Auth::user()->id;
                 $post->is_headline = $request->is_headline;  
                 $post->save();
             }else{
@@ -40,8 +43,9 @@ class PostController extends Controller
                 $post->authors = Auth::user()->name;
                 $post->pubdate = date('Y-m-d');
                 $post->is_headline = $request->is_headline;   
-                $post->foto = $request->file('foto')->getClientOriginalName(); 
-                $posting_foto->move($destinationPath,$posting_foto->getClientOriginalName()); 
+                $post->foto = $fotonya; 
+                $post->user_id = Auth::user()->id;
+                $posting_foto->move($destinationPath,$fotonya); 
                 $post->save();
             }
          
@@ -55,6 +59,7 @@ class PostController extends Controller
                     'title' => $request->title,
                     'content' => $request->content,
                     'authors' => Auth::user()->name,
+                    'user_id' => Auth::user()->id,
                     'pubdate' =>  date('Y-m-d'),
                     'is_headline' => $request->is_headline                  
                 ]);
@@ -65,8 +70,9 @@ class PostController extends Controller
                     'content' => $request->content,
                     'authors' => Auth::user()->name,
                     'pubdate' =>  date('Y-m-d'),
+                    'user_id' => Auth::user()->id,
                     'is_headline' => $request->is_headline,
-                    'foto' => $request->file('foto')->getClientOriginalName(), 
+                    'foto' => $fotonya
                 ]);
                 $posting_foto->move($destinationPath,$posting_foto->getClientOriginalName());
             }
@@ -77,7 +83,8 @@ class PostController extends Controller
 
     public function datalist(Request $request){ 
         if ($request->ajax()) {
-            $data = PostModel::latest()->get();
+            $data = \DB::table('post')->where('user_id','=',Auth::user()->id)->get();
+            // $data = PostModel::latest()->get();
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function($row){
@@ -104,6 +111,41 @@ class PostController extends Controller
         $post->delete();
 
     }  
+
+    public function comment(Request $request){
+        $comment = new \App\Models\CommentModel();
+        $comment->id_post = $request->id_post;
+        $comment->id_user = $request->id_user;
+        $comment->comment = $request->comment;
+        $comment->save();
+
+        if($comment){
+            
+            return redirect('details/'.$request->id_post);
+        }
+    }
+
+    public function delete_comment($id){
+        $data = CommentModel::findOrfail($id);
+        $data->delete();
+        return redirect()->back();
+    }
+
+    public function get_comment(Request $request){
+        $id = $request->id;
+        $post = \DB::table('comment')->where('id','=',$id)->first(); 
+        return $post; 
+    }
+
+    public function update_comment(Request $request){
+        $idcommentdata = $request->idcommentdata;
+        $commentdata = $request->commentdata;
+        \DB::table('comment')->where('id',$request->idcommentdata)->update([
+            'comment' => $request->commentdata
+            
+        ]);
+        return redirect()->back();
+    }
 
 
     

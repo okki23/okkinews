@@ -7,9 +7,11 @@
         <meta name="description" content="" />
         <meta name="author" content="" />
         <title>OkkiNews - {{ $data->title }}</title>
+        <meta name="csrf-token" content="{{ csrf_token() }}" /> 
         <!-- Favicon-->
         <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
         <!-- Core theme CSS (includes Bootstrap)-->
+        <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E=" crossorigin="anonymous"></script>
        <link href="{{ asset('css/styles.css') }}" rel="stylesheet" />
     </head>
     <body>
@@ -50,46 +52,82 @@
                             <a class="badge bg-secondary text-decoration-none link-light" href="#!">Freebies</a> --}}
                         </header>
                         <!-- Preview image figure-->
-                        <figure class="mb-4"><img class="img-fluid rounded" style="width: 900px; height:400px;" src="{{ asset('uploads/'.$data->image) }}" alt="..." /></figure>
+                        <figure class="mb-4"><img class="img-fluid rounded" style="width: 900px; height:400px;" src="{{ asset('uploads/'.$data->foto) }}" alt="..." /></figure>
                         <!-- Post content-->
                         <section class="mb-5">
                             <p class="fs-5 mb-4" style="text-align: justify;"> {{ $data->content }}</p>
                         </section>
                     </article>
                     <!-- Comments section-->
-                    {{-- @if(Auth::user()) --}}
+                    @if(Auth::user())
 
                     
                     <section class="mb-5">
                         <div class="card bg-light">
                             <div class="card-body">
                                 <!-- Comment form-->
-                                <form class="mb-4">
-                                    {{-- <textarea class="form-control" rows="3" placeholder="Join the discussion and leave a comment!"></textarea></form> --}}
+                                <form class="mb-4" action="{{ url('comment')}}" method="POST" enctype="multipart/form-data">
+                                    @csrf
+                                    <input type="hidden" id="id_post" name="id_post" value="{{ Request::segment(2) }}">
+                                    <input type="hidden" id="id_user" name="id_user" value="{{ Auth::user()->id }}">
+                                    <textarea class="form-control" name="comment" id="comment" rows="3" placeholder="Tulis komen anda disini"></textarea>
+                                    <br>
+                                    &nbsp;
+                                    <button type="submit" class="btn btn-primary btn-block"> Comment</button>
+                                </form>
                                 <!-- Comment with nested comments-->
                                 <h3>Komentar</h3>
                                 <hr>
+
+                                {{-- {{ dd($komen)}} --}}
+                                @foreach($komen as $ky => $vy)
                                 <div class="d-flex mb-4">
                                     <!-- Parent comment-->
                                     <div class="flex-shrink-0"><img class="rounded-circle" src="https://dummyimage.com/50x50/ced4da/6c757d.jpg" alt="..." /></div>
                                     <div class="ms-3">
-                                        <div class="fw-bold">Commenter Name</div>
-                                        If you're going to lead a space frontier, it has to be government; it'll never be private enterprise. Because the space frontier is dangerous, and it's expensive, and it has unquantified risks.
-                                         
+                                        <div class="fw-bold">{{ $vy->name }}</div>
+                                        {{ $vy->comment }}
+                                        &nbsp;
+                                        @if($vy->idkomenuser == Auth::user()->id)
+                                            <a href="javascript:void(0);" onclick="EditForm({{$vy->idkomen}});" class="btn btn-warning btn-sm">  Edit </a> &nbsp; 
+                                            <a href="{{ url('delete_comment/'.$vy->idkomen )}}" class="btn btn-danger btn-sm">  Delete </a>
+                                        @endif
                                     </div>
                                 </div>
-                                <!-- Single comment-->
-                                <div class="d-flex">
-                                    <div class="flex-shrink-0"><img class="rounded-circle" src="https://dummyimage.com/50x50/ced4da/6c757d.jpg" alt="..." /></div>
-                                    <div class="ms-3">
-                                        <div class="fw-bold">Commenter Name</div>
-                                        When I look at the universe and all the ways the universe wants to kill us, I find it hard to reconcile that with statements of beneficence.
-                                    </div>
-                                </div>
+                                @endforeach
+                               
+                            
                             </div>
                         </div>
                     </section>
-                    {{-- @endif --}}
+                    @else 
+                    <section class="mb-5">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <!-- Comment form-->
+                                
+                                <!-- Comment with nested comments-->
+                                <h3>Komentar</h3>
+                                <hr>
+
+                                {{-- {{ dd($komen)}} --}}
+                                @foreach($komen as $ky => $vy)
+                                <div class="d-flex mb-4">
+                                    <!-- Parent comment-->
+                                    <div class="flex-shrink-0"><img class="rounded-circle" src="https://dummyimage.com/50x50/ced4da/6c757d.jpg" alt="..." /></div>
+                                    <div class="ms-3">
+                                        <div class="fw-bold">{{ $vy->name }}</div>
+                                        {{ $vy->comment }}
+                                         
+                                    </div>
+                                </div>
+                                @endforeach
+                               
+                            
+                            </div>
+                        </div>
+                    </section>
+                    @endif
                     
                 </div>
                 <!-- Side widgets-->
@@ -131,6 +169,47 @@
                 </div>
             </div>
         </div>
+
+        <div class="modal fade" id="myModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Tambah Data</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                
+    
+                    <div class="card-body">
+                        <form method="POST" action ="{{ url('update_comment') }}" enctype="multipart/form-data" action id="my-form">
+                            @csrf
+                            <input type="text" name="idcommentdata" id="idcommentdata">
+                            <div class="mb-3">
+                                <label class="small mb-1" for="inputUsername">Comment</label>
+                                <input class="form-control" id="commentdata" name="commentdata" type="text">
+                            </div>
+      
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                                <div class="nav-link-icon"><i data-feather="x-square"></i></div> &nbsp;
+                                Close
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <div class="nav-link-icon"><i data-feather="database"></i></div> &nbsp;
+                                Simpan
+                            </button>
+                        </form>
+                    </div>
+    
+    
+    
+                </div>
+                <div class="modal-footer">
+                
+                </div> 
+            </div>
+            </div>
+        </div>
+
         <!-- Footer-->
         <footer class="py-5 bg-dark">
             <div class="container"><p class="m-0 text-center text-white">Copyright &copy; OkkiNews 2023</p></div>
@@ -139,5 +218,32 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
         <!-- Core theme JS-->
         <script src="js/scripts.js"></script>
+
+        <script>
+
+            $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+            });
+                        
+            function EditForm(id){
+                $('#myModal').modal('show');   
+                $.ajax({
+                    url : "{{ route('get_comment') }}",
+                    type: "POST",
+                    data: {id:id},
+                    success: function(data)
+                    {  
+                        
+                        console.log(data.comment);
+                        $("#commentdata").val(data.comment);
+                        $("#idcommentdata").val(data.id);
+                       
+                    } 
+                });
+               
+            }
+        </script>
     </body>
 </html>
